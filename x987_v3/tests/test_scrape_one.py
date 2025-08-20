@@ -58,7 +58,7 @@ def test_scrape_one_extracts_fields(monkeypatch):
     raw_html = html.read_text(encoding="utf-8")
     body_text = re.search(r"<body>(.*)</body>", raw_html, re.S).group(1)
     monkeypatch.setattr(universal_vdp, "sync_playwright", lambda: make_sync_playwright(body_text, "2010 Porsche Cayman S"))
-    row = universal_vdp.scrape_one("http://example.com/car1", "test", {"ready_selectors": [], "primary_selectors": {}, "rate_limit_ms": 0})
+    row = universal_vdp.scrape_one("http://example.com/car1", "test", {"ready_selectors": [], "primary_selectors": {}, "rate_limit_ms": 0}, {})
     assert row["price_usd"] == 45000
     assert row["mileage"] == 52123
     assert row["vin"] == "WP0AB2A80AL780123"

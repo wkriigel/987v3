@@ -2,13 +2,19 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-RE_PRICE = re.compile(r"\$?\s*([0-9][0-9,]{0,})(?:\.\d{2})?")
+RE_PRICE = re.compile(r"\$\s*([0-9][0-9,]*)")
 RE_MILES = re.compile(r"([0-9][0-9,]*(?:\.\d+)?)\s*(k)?\s*(?:miles?|mi\.?)\b", re.I)
 RE_YEAR  = re.compile(r"\b(19|20)\d{2}\b")
 RE_VIN   = re.compile(r"\b([A-HJ-NPR-Z0-9]{17})\b")
 
 
 def parse_price(s: str):
+    """Return the first ``$``-prefixed price found in ``s``.
+
+    Earlier iterations matched any number which frequently captured engine
+    sizes or other figures.  Restricting the regex to dollar-prefixed numbers
+    yields much more reliable results for VDP pages.
+    """
     m = RE_PRICE.search(s or "")
     return int(m.group(1).replace(",", "")) if m else None
 

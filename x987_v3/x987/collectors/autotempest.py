@@ -31,13 +31,17 @@ def _extract_vdp_links(hrefs: Iterable[str]) -> List[Dict[str, str]]:
             continue
     return out
 
-def collect_autotempest(url: str) -> List[Dict[str, str]]:
+def collect_autotempest(url: str, settings: dict) -> List[Dict[str, str]]:
     """
     Headful navigation to an AutoTempest search URL, then collect VDP links
     for cars.com, truecar.com, and carvana.com.
     """
+    browser_cfg = (settings or {}).get("browser", {})
+    headless = not browser_cfg.get("headful", True)
+    slow = int(browser_cfg.get("slow_ms", 0))
+
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=False, slow_mo=200)
+        browser = pw.chromium.launch(headless=headless, slow_mo=slow)
         ctx = browser.new_context()
         page = ctx.new_page()
         page.goto(url, wait_until="domcontentloaded")

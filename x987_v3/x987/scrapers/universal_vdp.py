@@ -72,12 +72,16 @@ def _extract_text(page, selector: str) -> str:
         pass
     return ""
 
-def scrape_one(url: str, host: str, profile: Dict[str, Any]) -> Dict[str, Any]:
+def scrape_one(url: str, host: str, profile: Dict[str, Any], settings: dict) -> Dict[str, Any]:
     host = host or _norm_host(url)
     prof = profile or _load_profile(host)
 
+    browser_cfg = (settings or {}).get("browser", {})
+    headless = not browser_cfg.get("headful", True)
+    slow = int(browser_cfg.get("slow_ms", 0))
+
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=False, slow_mo=200)
+        browser = pw.chromium.launch(headless=headless, slow_mo=slow)
         ctx = browser.new_context()
         page = ctx.new_page()
         try:

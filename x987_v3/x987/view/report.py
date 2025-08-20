@@ -131,14 +131,12 @@ def get_paint_hex(ext_name: str) -> Optional[str]:
     key=norm(ext_name)
     if key in PAINT_DB: return PAINT_DB[key]
     if key in BUILTIN_PAINTS: return BUILTIN_PAINTS[key]
-    try:
-        from rapidfuzz import process, fuzz
-        choices=list({*PAINT_DB.keys(), *BUILTIN_PAINTS.keys()})
-        if choices:
-            cand,score,_=process.extractOne(key,choices,scorer=fuzz.WRatio)
-            if score>=85: return (PAINT_DB.get(cand) or BUILTIN_PAINTS.get(cand))
-    except Exception:
-        pass
+    for cand in PAINT_DB:
+        if key in cand or cand in key:
+            return PAINT_DB[cand]
+    for cand in BUILTIN_PAINTS:
+        if key in cand or cand in key:
+            return BUILTIN_PAINTS[cand]
     return None
 
 INTERIOR_GUESS = [

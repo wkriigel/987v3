@@ -25,7 +25,7 @@ def run_scrape(url_entries: List[Dict[str, str]], settings: dict) -> List[Dict]:
         host = item.get('source') or _norm_host(url)
         profile = _load_profile(host)
         try:
-            row = scrape_one(url, host, profile)
+            row = scrape_one(url, host, profile, settings)
         except Exception as ex:
             row = {'source': host, 'listing_url': url, 'error': str(ex)}
         rows.append(row)
