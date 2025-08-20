@@ -4,13 +4,13 @@ import importlib, re
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeoutError
 from ..schema import Row
-from ..utils.text import parse_price, parse_miles, RE_YEAR, RE_VIN
-
-TX_MAP = [
-    (r"(?i)\bPDK\b|dual[- ]clutch|dct|doppelkupplung|7[- ]speed(?:\s*pdk)?", "PDK"),
-    (r"(?i)\bTiptronic\b|automatic|auto\b|a/t", "Automatic"),
-    (r"(?i)\bmanual\b|6[- ]speed|6mt", "Manual"),
-]
+from ..utils.text import (
+    parse_price,
+    parse_miles,
+    RE_YEAR,
+    RE_VIN,
+    detect_transmission,
+)
 
 def _norm_host(url: str) -> str:
     u = urlparse(url)
@@ -30,13 +30,17 @@ def _load_profile(host: str) -> Dict[str, Any]:
             "rate_limit_ms": 800,
         }
 
-def _detect_transmission(text: str) -> Optional[str]:
+def _extract_options(text: str) -> Optional[str]:
     if not text:
         return None
-    for pat, label in TX_MAP:
-        if re.search(pat, text):
-            return label
-    return None
+    opts = []
+    for line in text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith(("•", "-", "*", "·")):
+            opts.append(s.lstrip("•-*·").strip())
+    return "; ".join(opts) if opts else None
 
 def _derive_model_trim_from_title(title: str) -> (Optional[int], Optional[str], Optional[str]):
     if not title:
@@ -127,7 +131,7 @@ def scrape_one(url: str, host: str, profile: Dict[str, Any]) -> Dict[str, Any]:
             m = RE_YEAR.search(body_txt or "")
             if m: year = int(m.group(0))
 
-        tx = _detect_transmission(body_txt)
+        tx = detect_transmission(body_txt)
 
         # heuristic colors/location
         exterior_color = None
@@ -155,9 +159,9 @@ def scrape_one(url: str, host: str, profile: Dict[str, Any]) -> Dict[str, Any]:
             price_usd=price,
             exterior_color=exterior_color,
             interior_color=interior_color,
-            raw_options=None,
+            raw_options=_extract_options(body_txt),
             location=location,
-            error=None
+            error=None,
         ).to_dict()
 
         # polite delay
