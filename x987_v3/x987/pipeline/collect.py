@@ -6,4 +6,4 @@ def run_collect(settings: dict) -> List[Dict[str, str]]:
     url = settings['collector']['autotempest_url']
     if str(url).startswith('TODO'):
         return []  # starter mode
-    return collect_autotempest(url)
+    return collect_autotempest(url, settings)

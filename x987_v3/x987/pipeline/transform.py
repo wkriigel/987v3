@@ -3,22 +3,53 @@ import re
 from typing import List, Dict
 
 from ..utils.text import normalize_transmission
+import options_v2
 
 
 def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
     out: List[Dict] = []
+
+    # Flatten option aliases for quick lookup
+    alias_map: Dict[str, str] = {}
+    for canon, aliases in options_v2.OPTIONS.items():
+        for a in aliases:
+            alias_map[a.lower()] = canon
+
     for r in rows:
+        # transmission normalisation
         tx = normalize_transmission(r.get("transmission_raw"))
         if tx:
             r["transmission"] = tx
 
+        # compose title from year/model/trim for view convenience
+        parts = [
+            str(r.get("year")).strip() if r.get("year") else None,
+            str(r.get("model")).strip() if r.get("model") else None,
+            str(r.get("trim")).strip() if r.get("trim") else None,
+        ]
+        title = " ".join(p for p in parts if p)
+        if title:
+            r["title"] = title
+
+        # normalise raw options into a single string
         opts = r.get("raw_options")
+        raw_opts = None
         if isinstance(opts, list):
             parts = [p.strip() for p in opts if p and p.strip()]
-            r["raw_options"] = "; ".join(parts) if parts else None
+            raw_opts = "; ".join(parts) if parts else None
         elif isinstance(opts, str):
             parts = [p.strip() for p in re.split(r"[\n;]+", opts) if p.strip()]
-            r["raw_options"] = "; ".join(parts) if parts else None
+            raw_opts = "; ".join(parts) if parts else None
+        r["raw_options"] = raw_opts
+
+        # detect canonical options
+        found: List[str] = []
+        hay = raw_opts.lower() if raw_opts else ""
+        for alias, canon in alias_map.items():
+            if alias in hay and canon not in found:
+                found.append(canon)
+        r["options"] = ", ".join(found) if found else None
 
         out.append(r)
+
     return out

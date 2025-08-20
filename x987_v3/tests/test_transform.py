@@ -26,7 +26,8 @@ def test_extract_options():
 
 
 def test_run_transform_parses_options_string():
-    rows = run_transform([{ "raw_options": "First Option\nSecond Option" }], {})
-    assert rows[0]["raw_options"] == "First Option; Second Option"
+    rows = run_transform([{ "raw_options": "Sport Chrono Package\nBose Audio" }], {})
+    assert rows[0]["raw_options"] == "Sport Chrono Package; Bose Audio"
+    assert rows[0]["options"] == "Sport Chrono, Bose Audio"
 
 
