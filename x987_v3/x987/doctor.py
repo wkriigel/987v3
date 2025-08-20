@@ -11,4 +11,4 @@ def doctor_check() -> None:
     python -m playwright install chromium
 '''.strip())
         raise
-    print('âœ… Doctor OK')
+    print('✅ Doctor OK')
