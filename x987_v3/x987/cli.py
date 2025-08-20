@@ -5,6 +5,7 @@ from .settings import get_settings
 from .utils.io import write_csv
 from .pipeline.collect import run_collect
 from .pipeline.scrape import run_scrape
+from .pipeline.transform import run_transform
 from .pipeline.dedupe import run_dedupe
 from .pipeline.fairvalue import run_fairvalue
 from .pipeline.baseline import run_baseline
@@ -34,7 +35,7 @@ def main() -> int:
     write_csv(raw_dir / "scrape.latest.csv", rows)
 
     print("=== TRANSFORM ===")
-    rows_t = rows  # placeholder for now
+    rows_t = run_transform(rows, settings)
     print(f"OK {{\"count\": {len(rows_t)} }}")
     write_csv(norm_dir / "transform.latest.csv", rows_t)
 
