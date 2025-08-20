@@ -22,4 +22,3 @@ def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
 
         out.append(r)
     return out
-

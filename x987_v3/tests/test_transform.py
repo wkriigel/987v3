@@ -29,3 +29,4 @@ def test_run_transform_parses_options_string():
     rows = run_transform([{ "raw_options": "First Option\nSecond Option" }], {})
     assert rows[0]["raw_options"] == "First Option; Second Option"
 
+
