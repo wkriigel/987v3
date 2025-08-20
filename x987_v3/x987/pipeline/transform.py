@@ -10,7 +10,7 @@ def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
     for r in rows:
         tx = normalize_transmission(r.get("transmission_raw"))
         if tx:
-            r["transmission_raw"] = tx
+            r["transmission"] = tx
 
         opts = r.get("raw_options")
         if isinstance(opts, list):

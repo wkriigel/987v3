@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from x987.utils.text import detect_transmission, normalize_transmission
+from x987.utils.text import detect_transmission
 from x987.scrapers.universal_vdp import _extract_options
 from x987.pipeline.transform import run_transform
 
@@ -15,7 +15,8 @@ def test_detect_and_normalize_transmission():
     raw = detect_transmission(txt)
     assert raw == "7-speed PDK"
     rows = run_transform([{ "transmission_raw": raw }], {})
-    assert rows[0]["transmission_raw"] == "PDK"
+    assert rows[0]["transmission_raw"] == raw
+    assert rows[0]["transmission"] == "PDK"
 
 
 def test_extract_options():

@@ -12,6 +12,7 @@ class Row:
     model: Optional[str] = None
     trim: Optional[str] = None
     transmission_raw: Optional[str] = None
+    transmission: Optional[str] = None
     mileage: Optional[int] = None
     price_usd: Optional[int] = None
     exterior_color: Optional[str] = None

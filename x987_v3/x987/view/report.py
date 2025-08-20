@@ -341,7 +341,7 @@ def print_table(rows: Iterable[dict]) -> None:
         price_raw=r.get("price_usd") or r.get("Price")
         miles_raw=r.get("mileage") or r.get("Miles")
         model=r.get("title") or r.get("model") or r.get("Year/Model/Trim") or ""
-        transmission=r.get("transmission_raw") or r.get("Transmission") or ""
+        transmission=r.get("transmission") or r.get("transmission_raw") or r.get("Transmission") or ""
         colors=(r.get("exterior_color") or "") + ((" / " + r.get("interior_color")) if r.get("interior_color") else "")
         options=r.get("options") or r.get("Top Options") or ""
         source=r.get("source") or r.get("site") or ""
