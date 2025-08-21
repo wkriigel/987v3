@@ -31,3 +31,16 @@ def test_run_transform_parses_options_string():
     assert rows[0]["options"] == "Sport Chrono, Bose Audio"
 
 
+def test_vin_infers_model_and_trim():
+    vin_s = "WP0AB29889U780241"  # Cayman S
+    vin_base = "WP0AA2A85AU760548"  # Cayman Base
+    rows = run_transform([
+        {"vin": vin_s},
+        {"vin": vin_base},
+    ], {})
+    assert rows[0]["model"] == "Cayman"
+    assert rows[0]["trim"] == "S"
+    assert rows[1]["model"] == "Cayman"
+    assert rows[1]["trim"] == "Base"
+
+
