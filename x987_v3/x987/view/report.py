@@ -276,9 +276,17 @@ def render_model_cell(model_text: str, tx_text: str) -> Text:
     return Text(model_text, style=theme_style(dim_map.get(cat,"warm_dim_6"), dim=True))
 
 def render_deal_cell(deal_value: Any, *, is_manual: bool=False) -> Text:
-    val=parse_int_with_commas(deal_value)
-    s=f"{val:+,}" if val is not None else str(deal_value)
-    return Text(s, style=theme_style("text_dim", dim=True) if is_manual else theme_style("text_muted"))
+    val = parse_int_with_commas(deal_value)
+    if val is not None:
+        s = f"{val:+,}"
+    else:
+        s = "\u2014"
+    return Text(
+        s,
+        style=theme_style("text_dim", dim=True)
+        if is_manual
+        else theme_style("text_muted"),
+    )
 
 def render_color_swatches_cell(value: str) -> Text:
     s=(value or "").strip()
@@ -341,7 +349,13 @@ def print_table(rows: Iterable[dict]) -> None:
         model=r.get("title") or r.get("model") or r.get("Year/Model/Trim") or ""
         transmission=r.get("transmission") or r.get("transmission_raw") or r.get("Transmission") or ""
         colors=(r.get("exterior_color") or "") + ((" / " + r.get("interior_color")) if r.get("interior_color") else "")
-        options=r.get("options") or r.get("Top Options") or ""
+        options=(
+            r.get("options")
+            or r.get("option_labels_display")
+            or r.get("top5_options_present")
+            or r.get("Top Options")
+            or ""
+        )
         source=r.get("source") or r.get("site") or ""
 
         abbr=abbreviate_transmission(str(transmission))
