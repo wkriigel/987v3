@@ -3,7 +3,8 @@ import re
 from typing import List, Dict
 
 from ..utils.text import normalize_transmission
-import options_v2
+import options_v2 as option_aliases
+from .options_v2 import recompute_options_v2
 
 
 def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
@@ -11,17 +12,25 @@ def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
 
     # Flatten option aliases for quick lookup
     alias_map: Dict[str, str] = {}
-    for canon, aliases in options_v2.OPTIONS.items():
+    for canon, aliases in option_aliases.OPTIONS.items():
         for a in aliases:
             alias_map[a.lower()] = canon
 
     for r in rows:
-        # transmission normalisation
+        vin = str(r.get("vin") or "").upper()
+        if not r.get("model") and vin.startswith("WP0"):
+            r["model"] = "Cayman"
+        if not r.get("trim") and vin.startswith("WP0A") and len(vin) > 4:
+            code = vin[4]
+            if code == "A":
+                r["trim"] = "Base"
+            elif code == "B":
+                r["trim"] = "S"
+
         tx = normalize_transmission(r.get("transmission_raw"))
         if tx:
             r["transmission"] = tx
 
-        # compose title from year/model/trim for view convenience
         parts = [
             str(r.get("year")).strip() if r.get("year") else None,
             str(r.get("model")).strip() if r.get("model") else None,
@@ -52,4 +61,5 @@ def run_transform(rows: List[Dict], settings: dict) -> List[Dict]:
 
         out.append(r)
 
+    out = recompute_options_v2(out, settings)
     return out
